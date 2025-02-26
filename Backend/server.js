@@ -14,6 +14,7 @@ mongoose.connect(mongoURI).then(()=>{
 });
 
 const taskSchema = new mongoose.Schema({
+    id: {type: Number},
     task: {type : String,
         require: true
     },
@@ -23,18 +24,6 @@ const taskSchema = new mongoose.Schema({
 
 const Task = mongoose.model("Tasks", taskSchema);
 
-// const createTask = async () => {try {
-//     const newTask = new Task({
-//         task: "Complete daa exam"
-//     });
-
-//     const savedTask = await newTask.save();
-//     console.log("User saved:", savedTask);
-// } catch (error) {
-//     console.error("Error saving user:", error);
-// }};
-
-// createTask();
 
 app.post('/tasks', async (req, res)=>{
     try{
