@@ -14,30 +14,24 @@ mongoose.connect(mongoURI).then(()=>{
 });
 
 
-// var  listName = "trip";
-
-// const taskSchema = new mongoose.Schema({
-//     _id: Number,  
-//     [listName]: [
-//       {
-//         id: Number, 
-//         task: String,
-//         status: {type: Boolean, default: false},
-//         date: {type: Date, default: Date.now}
-//       }
-//     ]
-// });
+const taskSchema = new mongoose.Schema({
+        taskId: Number, 
+        task: String,
+        status: {type: Boolean, default: false},
+        createdDate: {type: Date, default: Date.now},   
+});
 
 const taskListSchema = new mongoose.Schema({
   listId: Number,  
   listName: String, 
-  tasks: [{}]
+  tasks: [taskSchema]
 });
 
  
-// const Task = mongoose.model("Tasks", taskSchema);
+const Task = mongoose.model("Tasks", taskSchema);
 const Todo_list = mongoose.model("Todo_list", taskListSchema);
 
+    //Add new list
     app.post('/newList', async (req, res)=> {
       try {
         
@@ -59,6 +53,37 @@ const Todo_list = mongoose.model("Todo_list", taskListSchema);
       } catch (error) {
           res.status(500).json({ error: "Error creating task", details: error.message });
       }
+    });
+
+    //Add new task
+    app.post('/newTask/:listId', async (req, res) => {
+      try{
+        const listId = parseInt(req.params.listId, 10);
+
+        const {task, status} = req.body;
+
+        if(!task){
+          return res.status(400).json({ error: "Task name is required" });
+        }
+
+        const list = await Todo_list.findOne({ listId: listId });
+        if (!list) {
+          return res.status(404).json({ error: "List not found" });
+        }
+
+        const lastTaskId = list.tasks.at(-1)?.taskId || 0;
+        const newTaskId = lastTaskId + 1;
+
+
+        const updatedList = await Todo_list.findOneAndUpdate(
+          { listId: listId },
+          { $push: { tasks: Task({taskId: newTaskId, task}) } },
+        );
+
+        res.status(200).json({ message: "Task added successfully", list: updatedList });
+  } catch (error) {
+    res.status(500).json({ error: "Error adding task", details: error.message });
+  }
     });
 
     // Start Server
