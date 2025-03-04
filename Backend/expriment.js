@@ -1,8 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
+const cors = require('cors');
+
+
 const app = express();
 const PORT = 5000;
+app.use(cors());
 app.use(express.json());
 
 const mongoURI = "mongodb://localhost:27017/TodoDB";
@@ -18,7 +22,8 @@ const taskSchema = new mongoose.Schema({
         taskId: Number, 
         task: String,
         status: {type: Boolean, default: false},
-        createdDate: {type: Date, default: Date.now},   
+        createdAt: {type: Date, default: Date.now},
+        dueDate: {type: Date, }
 });
 
 const taskListSchema = new mongoose.Schema({
