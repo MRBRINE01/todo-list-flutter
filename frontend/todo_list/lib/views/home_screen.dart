@@ -8,7 +8,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<bool> selectedTasks = List.generate(5, (index) => false); // Track selection for each task
+  List<bool> selectedTasks =
+      List.generate(5, (index) => false); // Track selection for each task
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: const EdgeInsets.all(10),
                       child: Row(
                         children: [
-                          Image(image: )
+                          // Image(image: )
                         ],
                       ),
                     ),

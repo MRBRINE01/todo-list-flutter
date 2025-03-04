@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todo_list/repositories/new_list_repo.dart';
 
 class LeftPanel extends StatefulWidget {
   const LeftPanel({super.key});
@@ -16,6 +17,8 @@ class _LeftPanelState extends State<LeftPanel> {
     "Tasks"
   ];
 
+  NewListRepo newListRepo = new NewListRepo();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,6 +32,7 @@ class _LeftPanelState extends State<LeftPanel> {
                   decoration: InputDecoration(
                     suffixIcon: Icon(Icons.search),
                     hintText: "Search",
+                    hintStyle: TextStyle(color: Colors.white),
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -46,10 +50,11 @@ class _LeftPanelState extends State<LeftPanel> {
                             itemBuilder: (BuildContext context, int index) {
                               return ListTile(
                                 leading: Icon(Icons.square),
-                                title: Text(defaultList[index]),
+                                title: Text(defaultList[index],
+                                    style: TextStyle(color: Colors.white)),
                                 trailing: CircleAvatar(
                                   radius: 10,
-                                  backgroundColor: Colors.grey[700],
+                                  backgroundColor: Colors.grey[800],
                                   child: Text(
                                     "3",
                                     style: TextStyle(
@@ -68,11 +73,17 @@ class _LeftPanelState extends State<LeftPanel> {
                             physics: NeverScrollableScrollPhysics(),
                             itemBuilder: (BuildContext context, int index) {
                               return ListTile(
-                                leading: Icon(Icons.menu),
-                                title: Text("Change me"),
+                                leading: Icon(
+                                  Icons.menu,
+                                  color: Colors.blue,
+                                ),
+                                title: Text(
+                                  "Change me",
+                                  style: TextStyle(color: Colors.white),
+                                ),
                                 trailing: CircleAvatar(
                                   radius: 10,
-                                  backgroundColor: Colors.grey[700],
+                                  backgroundColor: Colors.grey[800],
                                   child: Text(
                                     "3",
                                     style: TextStyle(
@@ -92,27 +103,32 @@ class _LeftPanelState extends State<LeftPanel> {
             bottom: 0,
             left: 0,
             right: 0,
-            child: Container(
-              color: Colors.grey[700],
-              height: 50,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.add,
-                      color: Colors.white,
-                      size: 23,
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      "New List",
-                      style: TextStyle(
+            child: InkWell(
+              onTap: () {
+                newListRepo.createNewList("No work");
+              },
+              child: Container(
+                color: Colors.grey[800],
+                height: 50,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.add,
                         color: Colors.white,
-                        fontSize: 18,
+                        size: 23,
                       ),
-                    ),
-                  ],
+                      SizedBox(width: 10),
+                      Text(
+                        "New List",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

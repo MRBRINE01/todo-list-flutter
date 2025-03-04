@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
+import 'package:todo_list/views/left_panel.dart';
+import 'views/home_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,10 +14,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 105, 105, 105), surface: Color.fromARGB(255, 44, 44, 44)),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 105, 105, 105),
+            surface: Color.fromARGB(255, 44, 44, 44)),
         useMaterial3: true,
       ),
-      home: HomeScreen(),
+      home: LeftPanel(),
     );
   }
 }
