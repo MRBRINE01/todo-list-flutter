@@ -9,6 +9,14 @@ class LeftPanel extends StatefulWidget {
 }
 
 class _LeftPanelState extends State<LeftPanel> {
+  List<IconData> defaltIcon = [
+    Icons.wb_sunny,
+    Icons.star_border,
+    Icons.menu_book,
+    Icons.person_2_outlined,
+    Icons.home_outlined
+  ];
+
   List<String> defaultList = [
     "My day",
     "Important",
@@ -17,10 +25,23 @@ class _LeftPanelState extends State<LeftPanel> {
     "Tasks"
   ];
 
-  NewListRepo newListRepo = new NewListRepo();
+  NewListRepo newListRepo = NewListRepo();
+
+  List<String> addedNewList = [];
+  bool isListAdd = false;
+
+  final TextEditingController NewListController = TextEditingController();
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    NewListController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    int listCount = addedNewList.length + (isListAdd ? 1 : 0);
     return Scaffold(
       body: Stack(
         children: [
@@ -30,10 +51,14 @@ class _LeftPanelState extends State<LeftPanel> {
               children: [
                 TextField(
                   decoration: InputDecoration(
-                    suffixIcon: Icon(Icons.search),
+                    suffixIcon: Icon(
+                      Icons.search,
+                      color: Colors.white,
+                    ),
                     hintText: "Search",
                     hintStyle: TextStyle(color: Colors.white),
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white)),
                   ),
                 ),
                 SizedBox(
@@ -49,7 +74,10 @@ class _LeftPanelState extends State<LeftPanel> {
                             physics: NeverScrollableScrollPhysics(),
                             itemBuilder: (BuildContext context, int index) {
                               return ListTile(
-                                leading: Icon(Icons.square),
+                                leading: Icon(
+                                  defaltIcon[index],
+                                  color: Colors.blue,
+                                ),
                                 title: Text(defaultList[index],
                                     style: TextStyle(color: Colors.white)),
                                 trailing: CircleAvatar(
@@ -68,17 +96,42 @@ class _LeftPanelState extends State<LeftPanel> {
                           color: Colors.grey[600],
                         ),
                         ListView.builder(
-                            itemCount: 50,
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemBuilder: (BuildContext context, int index) {
+                          itemCount: listCount,
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemBuilder: (BuildContext context, int index) {
+                            if (isListAdd && index == addedNewList.length) {
+                              return ListTile(
+                                leading: Icon(
+                                  Icons.edit,
+                                  color: Colors.blue,
+                                ),
+                                title: TextField(
+                                  autofocus: true,
+                                  controller: NewListController,
+                                  onSubmitted: (value) {
+                                    setState(() {
+                                      addedNewList.add(value.trim());
+                                      isListAdd = false;
+                                      NewListController.clear();
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: "Enter list name",
+                                    hintStyle: TextStyle(color: Colors.white54),
+                                    border: InputBorder.none,
+                                  ),
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              );
+                            } else {
                               return ListTile(
                                 leading: Icon(
                                   Icons.menu,
                                   color: Colors.blue,
                                 ),
                                 title: Text(
-                                  "Change me",
+                                  addedNewList[index],
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 trailing: CircleAvatar(
@@ -91,7 +144,9 @@ class _LeftPanelState extends State<LeftPanel> {
                                   ),
                                 ),
                               );
-                            }),
+                            }
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -105,7 +160,10 @@ class _LeftPanelState extends State<LeftPanel> {
             right: 0,
             child: InkWell(
               onTap: () {
-                newListRepo.createNewList("No work");
+                // newListRepo.createNewList("No work");
+                setState(() {
+                  isListAdd = true;
+                });
               },
               child: Container(
                 color: Colors.grey[800],
