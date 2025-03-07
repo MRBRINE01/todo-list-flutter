@@ -10,7 +10,7 @@ class NewListRepo {
     var parsedResponse;
 
     final response = await http.post(
-      Uri.parse(Constants.baseUrl + "/newList"),
+      Uri.parse("${Constants.baseUrl}/newList"),
       headers: {
         "Content-Type": "application/json",
       },

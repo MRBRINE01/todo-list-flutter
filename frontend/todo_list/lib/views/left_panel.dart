@@ -17,7 +17,7 @@ class _LeftPanelState extends State<LeftPanel> {
     "Tasks"
   ];
 
-  NewListRepo newListRepo = new NewListRepo();
+  NewListRepo newListRepo = NewListRepo();
 
   @override
   Widget build(BuildContext context) {
