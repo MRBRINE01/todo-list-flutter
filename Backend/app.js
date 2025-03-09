@@ -22,7 +22,7 @@ mongoose.model("Tasks", taskSchema);
 mongoose.model("Todo_list", taskListSchema);
 
 // Import routes
-const todoRoutes = require('./routes/todoRoutes');
+const todoRoutes = require('./routers/todoRoutor.js');
 
 const app = express();
 const PORT = 5000;
@@ -43,9 +43,9 @@ mongoose.connect(mongoURI)
   });
 
 // Use routes
-app.use('/api/todos', todoRoutes);
+app.use('/', todoRoutes);
 
 // Start server
 app.listen(PORT, () => {
-  console.log("Server running on http://localhost:", PORT);
+  console.log("Server running on http://127.0.0.1:", PORT);
 });

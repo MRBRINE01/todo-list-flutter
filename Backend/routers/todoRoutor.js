@@ -60,4 +60,52 @@ router.post('/newTask/:listId', async (req, res) => {
   }
 });
 
+// Delete a list
+router.delete('/list/:listId', async (req,res) => {
+    try{
+    const listId = parseInt(req.params.listId, 10);
+
+    const result = await Todo_list.findOneAndDelete({listId: listId});
+    
+    if(!result){
+        return res.status(404).json({error: "List not found"});
+    }
+
+    return res.status(200).json({message: "List deleted successfully"});
+    }
+    catch(err){
+        return res.status(500).json({error: "Error deleting the list", details: err.message})
+    }
+});
+
+// Delete a task from a list
+router.delete('/task/:listId/:taskId', async (req, res) => {
+    try {
+      const listId = parseInt(req.params.listId, 10);
+      const taskId = parseInt(req.params.taskId, 10);
+      
+      // Find the list and remove the task from the tasks array
+      const updatedList = await Todo_list.findOneAndUpdate(
+        { listId: listId },
+        { $pull: { tasks: { taskId: taskId } } },
+        { new: true }
+      );
+      
+      if (!updatedList) {
+        return res.status(404).json({ error: "List not found" });
+      }
+      
+      res.status(200).json({ 
+        message: "Task deleted successfully", 
+        list: updatedList 
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Error deleting task", details: error.message });
+    }
+  });
+
+
+  //Edit list name
+  
+
 module.exports = router;

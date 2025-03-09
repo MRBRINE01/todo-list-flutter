@@ -3,7 +3,7 @@
 
 npm install express mongoose cors body-parser 
 
-nodemon server.js / node server.js
+nodemon app.js / node app.js
 
 
 //Flutter commands 
