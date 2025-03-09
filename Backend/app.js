@@ -18,7 +18,6 @@ const taskListSchema = new mongoose.Schema({
 });
 
 // Register models
-mongoose.model("Tasks", taskSchema);
 mongoose.model("Todo_list", taskListSchema);
 
 // Import routes

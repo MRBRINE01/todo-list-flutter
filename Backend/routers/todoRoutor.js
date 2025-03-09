@@ -3,7 +3,6 @@ const router = express.Router();
 const mongoose = require('mongoose');
 
 // Import models (assuming they're defined in separate files)
-const Task = mongoose.model("Tasks");
 const Todo_list = mongoose.model("Todo_list");
 
 // Add new list
@@ -61,7 +60,7 @@ router.post('/newTask/:listId', async (req, res) => {
 });
 
 // Delete a list
-router.delete('/list/:listId', async (req,res) => {
+router.delete('/deleteList/:listId', async (req,res) => {
     try{
     const listId = parseInt(req.params.listId, 10);
 
@@ -79,7 +78,7 @@ router.delete('/list/:listId', async (req,res) => {
 });
 
 // Delete a task from a list
-router.delete('/task/:listId/:taskId', async (req, res) => {
+router.delete('/deleteTask/:listId/:taskId', async (req, res) => {
     try {
       const listId = parseInt(req.params.listId, 10);
       const taskId = parseInt(req.params.taskId, 10);
@@ -106,6 +105,81 @@ router.delete('/task/:listId/:taskId', async (req, res) => {
 
 
   //Edit list name
-  
+  router.put('/editList/:listId', async (req,res) => {
+    try{
+    const listId = parseInt(req.params.listId, 10);
+
+    const { listName } = req.body;
+
+    if (!listName) {
+      return res.status(400).json({ error: "List name is required" });
+    }
+
+    const updatedListName = await Todo_list.findOneAndUpdate(
+      {listId: listId},
+      {$set : {listName: listName}},
+    );
+
+    if(!updatedListName){
+      return res.status(404).json({error: "List not found"});
+    }
+
+    res.status(200).json({
+      message: "List name updated successfully",
+      list: updatedListName
+    });
+  }
+    catch(err){
+      res.status(500).json({ error: "Error editing the name", details: err.message});
+    }
+  });
+
+
+  //Edit Task
+  router.put('/editTask/:listId/:taskId', async (req,res) => {
+    try{
+    const listId = parseInt(req.params.listId, 10);
+    const taskId = parseInt(req.params.taskId, 10);
+
+    const { task } = req.body;
+    const { status } = req.body;
+    const { dueDate } = req.body;
+
+    if (!task) {
+      return res.status(400).json({ error: "Task name is required" });
+    }
+    if (!status) {
+      return res.status(400).json({ error: "Status is required" });
+    }
+
+    const updatedTask = await Todo_list.findOneAndUpdate(
+      {listId: listId, "tasks.taskId": taskId},
+      {$set : {"tasks.$.task": task, "tasks.$.status": status, "tasks.$.dueDate": dueDate}},
+      {new: true}
+    );
+
+    if(!updatedTask){
+      return res.status(404).json({error: "List or task not found not found"});
+    }
+
+    res.status(200).json({
+      message: "Task updated successfully",
+      list: updatedTask
+    });
+  }
+    catch(err){
+      res.status(500).json({ error: "Error editing Task", details: err.message});
+    }
+  });
+
+  //get list
+  router.get('/lists', async (req, res) => {
+    try {
+      const lists = await Todo_list.find();
+      res.status(200).json({ message: 'Lists retrieved successfully', lists });
+    } catch (error) {
+      res.status(500).json({ error: 'Error retrieving lists', details: error.message });
+    }
+  });
 
 module.exports = router;

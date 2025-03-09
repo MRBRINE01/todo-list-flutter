@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:todo_list/repositories/new_list_repo.dart';
 
+import '../core/constants.dart';
+
 class LeftPanel extends StatefulWidget {
   const LeftPanel({super.key});
 
@@ -29,6 +31,8 @@ class _LeftPanelState extends State<LeftPanel> {
 
   List<String> addedNewList = [];
   bool isListAdd = false;
+  int? _isHovered;
+  int? _isHover;
 
   final TextEditingController NewListController = TextEditingController();
 
@@ -73,20 +77,31 @@ class _LeftPanelState extends State<LeftPanel> {
                             shrinkWrap: true,
                             physics: NeverScrollableScrollPhysics(),
                             itemBuilder: (BuildContext context, int index) {
-                              return ListTile(
-                                leading: Icon(
-                                  defaltIcon[index],
-                                  color: Colors.blue,
-                                ),
-                                title: Text(defaultList[index],
-                                    style: TextStyle(color: Colors.white)),
-                                trailing: CircleAvatar(
-                                  radius: 10,
-                                  backgroundColor: Colors.grey[800],
-                                  child: Text(
-                                    "3",
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 12),
+                              return MouseRegion(
+                                onEnter: (_) =>
+                                    setState(() => _isHovered = index),
+                                onExit: (_) =>
+                                    setState(() => _isHovered = null),
+                                child: ColoredBox(
+                                  color: _isHovered == index
+                                      ? Constants.hoverColor
+                                      : Constants.surfaceColor,
+                                  child: ListTile(
+                                    leading: Icon(
+                                      defaltIcon[index],
+                                      color: Colors.blue,
+                                    ),
+                                    title: Text(defaultList[index],
+                                        style: TextStyle(color: Colors.white)),
+                                    trailing: CircleAvatar(
+                                      radius: 10,
+                                      backgroundColor: Colors.grey[800],
+                                      child: Text(
+                                        "3",
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 12),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               );
@@ -108,6 +123,7 @@ class _LeftPanelState extends State<LeftPanel> {
                                 ),
                                 title: TextField(
                                   autofocus: true,
+                                  cursorColor: Colors.white,
                                   controller: NewListController,
                                   onSubmitted: (value) {
                                     setState(() {
@@ -120,27 +136,41 @@ class _LeftPanelState extends State<LeftPanel> {
                                     hintText: "Enter list name",
                                     hintStyle: TextStyle(color: Colors.white54),
                                     border: InputBorder.none,
+                                    focusedBorder: UnderlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
+                                    ),
                                   ),
                                   style: TextStyle(color: Colors.white),
                                 ),
                               );
                             } else {
-                              return ListTile(
-                                leading: Icon(
-                                  Icons.menu,
-                                  color: Colors.blue,
-                                ),
-                                title: Text(
-                                  addedNewList[index],
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                trailing: CircleAvatar(
-                                  radius: 10,
-                                  backgroundColor: Colors.grey[800],
-                                  child: Text(
-                                    "3",
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 12),
+                              return MouseRegion(
+                                onEnter: (_) =>
+                                    setState(() => _isHover = index),
+                                onExit: (_) => setState(() => _isHover = null),
+                                child: ColoredBox(
+                                  color: _isHover == index
+                                      ? Constants.hoverColor
+                                      : Constants.surfaceColor,
+                                  child: ListTile(
+                                    leading: Icon(
+                                      Icons.menu,
+                                      color: Colors.blue,
+                                    ),
+                                    title: Text(
+                                      addedNewList[index],
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    trailing: CircleAvatar(
+                                      radius: 10,
+                                      backgroundColor: Colors.grey[800],
+                                      child: Text(
+                                        "3",
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 12),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               );

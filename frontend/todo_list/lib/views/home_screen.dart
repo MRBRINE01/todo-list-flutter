@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todo_list/core/constants.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,7 +22,6 @@ class _HomeScreenState extends State<HomeScreen> {
       isChecked.add(false);
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -53,8 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(5),
                             ),
                             color: hover == index
-                                ? Color.fromARGB(255, 63, 63, 63)
-                                : Color.fromARGB(255, 43, 43, 43),
+                                ? Constants.hoverColor
+                                : Constants.nonHoverColor,
                             margin: const EdgeInsets.symmetric(vertical: 3),
                             child: Padding(
                               padding: const EdgeInsets.all(15),
@@ -69,10 +69,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                       }),
                                   Text(
                                     task[index],
-                                    style: TextStyle(color: Colors.white,
-                                    decoration: isChecked[index] ? TextDecoration.lineThrough : TextDecoration.none,
-                                    decorationThickness: 3, decorationColor: Colors.white),
-                                    
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        decoration: isChecked[index]
+                                            ? TextDecoration.lineThrough
+                                            : TextDecoration.none,
+                                        decorationThickness: 3,
+                                        decorationColor: Colors.white),
                                   ),
                                 ],
                               ),
@@ -82,31 +85,30 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                   ),
-
-                
-
-
                   SizedBox(
                     height: 80,
                   ),
-
-                  if (isChecked.contains(true)) 
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10, bottom: 90, left: 0, right: 1350),
+                  if (isChecked.contains(true))
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          top: 10, bottom: 90, left: 0, right: 1350),
                       child: Container(
                         height: 45,
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(5),
-                        color: Color.fromARGB(255, 43, 43, 43),),
-                        
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: Color.fromARGB(255, 43, 43, 43),
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.only(left: 5),
                           child: Row(
                             children: [
-                              Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white),
-                          
-                              Text("Completed", style: TextStyle(color: Colors.white, fontSize: 17),),
-                          
-                          
+                              Icon(Icons.keyboard_arrow_down_rounded,
+                                  color: Colors.white),
+                              Text(
+                                "Completed",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 17),
+                              ),
                             ],
                           ),
                         ),
