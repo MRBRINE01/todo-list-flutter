@@ -21,7 +21,6 @@ class NewListRepo {
       print("List created sucessfully");
       return jsonDecode(response.body);
     } else if (response.statusCode == 400) {
-      // Handle client errors (e.g., missing listName)
       throw Exception('Bad Request: ${response.body}');
     } else {
       throw Exception('Error creating list: ${response.body}');

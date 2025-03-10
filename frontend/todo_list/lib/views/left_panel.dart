@@ -129,6 +129,8 @@ class _LeftPanelState extends State<LeftPanel> {
                                     setState(() {
                                       addedNewList.add(value.trim());
                                       isListAdd = false;
+                                      newListRepo.createNewList(
+                                          value.trim().toString());
                                       NewListController.clear();
                                     });
                                   },
