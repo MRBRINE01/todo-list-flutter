@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
             primary: const Color.fromARGB(255, 43, 43, 43)),
         useMaterial3: true,
       ),
-      home: RightPanel(),
+      home: HomeScreen(),
     );
   }
 }

@@ -16,7 +16,7 @@ class ListData {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
 
-        final List<dynamic> listsJson = data['lists'] ?? [];
+        final List<dynamic> listsJson = data['lists']?? [];
 
         return listsJson
             .map((listsJson) => TodoList.fromJson(listsJson))
