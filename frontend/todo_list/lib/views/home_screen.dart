@@ -12,16 +12,30 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController taskController = TextEditingController();
-  List<String> task = [];
-  Color bgColor = Color.fromARGB(255, 43, 43, 43);
-  List<bool> isChecked = [];
+  List<String> pendingTasks = [];
+  List<String> completedTasks = [];
+  Color bgColor = Constants.nonHoverColor;
   int? hover;
 
   void addTask() {
     setState(() {
-      task.add(taskController.text.trim());
+      String task = taskController.text.trim();          //removes the whitespace charaters so that empty tasks cant be added
+      if (task.isNotEmpty) {
+        pendingTasks.add(task);
+      }
       taskController.clear();
-      isChecked.add(false);
+    });
+  }
+
+  void toggleTask(String task, bool isCompleted) {       //function to move tasks from pending to completed tasks and vice versa
+    setState(() {
+      if (isCompleted) {
+        completedTasks.remove(task);
+        pendingTasks.add(task);
+      } else {
+        pendingTasks.remove(task);
+        completedTasks.add(task);
+      }
     });
   }
 
@@ -37,117 +51,56 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(20),
-              child: Stack(
+              child: Column(
                 children: [
-                  Column(
-                    children: [
-                      Text(
-                        "Tasks",
-                        style: TextStyle(fontSize: 40, color: Colors.blue),
-                      ),
-                      Divider(
-                        thickness: 1,
-                        color: Colors.grey[600],
-                      ),
-                      const SizedBox(height: 15),
-                      Expanded(
-                        child: ListView.builder(
-                          physics: BouncingScrollPhysics(),
-                          itemCount: task.length,
-                          itemBuilder: (context, index) {
-                            return MouseRegion(
-                              onEnter: (_) => setState(() => hover = index),
-                              onExit: (_) => setState(() => hover = null),
-                              child: Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                color: hover == index
-                                    ? Constants.hoverColor
-                                    : Constants.nonHoverColor,
-                                margin: const EdgeInsets.symmetric(vertical: 3),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(15),
-                                  child: Row(
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            isChecked[index] =
-                                                !isChecked[index];
-                                          });
-                                          print(isChecked[index]);
-                                        },
-                                        child: Container(
-                                          width: 24,
-                                          height: 24,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                                color: Colors.white, width: 2),
-                                            color: isChecked[index]
-                                                ? Colors.blue
-                                                : Colors.transparent,
-                                          ),
-                                          child: isChecked[index]
-                                              ? const Icon(
-                                                  Icons.check,
-                                                  color: Colors.white,
-                                                  size: 16,
-                                                )
-                                              : null,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Text(
-                                        task[index],
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            decoration: isChecked[index]
-                                                ? TextDecoration.lineThrough
-                                                : TextDecoration.none,
-                                            decorationThickness: 3,
-                                            decorationColor: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                  Text(
+                    "Tasks",
+                    style: TextStyle(fontSize: 40, color: Constants.checkColor),
+                  ),
+                  Divider(
+                    thickness: 1,
+                    color: Colors.grey[600],
+                  ),
+                  const SizedBox(height: 15),
+                  Expanded(
+                    child: ListView(                              //created a list view intead of list view builder beacause it allows to add tasks or items anywhere between the list
+                      physics: const BouncingScrollPhysics(),
+                      children: [
+                        
+                        ...pendingTasks.map((task) => taskTile(task, false)),       //creates a list of task dynamically and places them inside the ListView.
+                                                                                    //.map() goes through each task inside pending tasks and changes it into a task tile.
+                                                                                    //... is a spread operator that breaks the list and adds each widget separately into list view.
+
+                       
+                        if (completedTasks.isNotEmpty)         //will show only if task is checked
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10, bottom: 10),
+                            child: Container(
+                              height: 50,
+                              //width: 150,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: Constants.nonHoverColor,
                               ),
-                            );
-                          },
-                        ),
-                      ),
-                      SizedBox(
-                        height: 80,
-                      ),
-                      if (isChecked.contains(true))
-                        Padding(
-                          padding: EdgeInsets.only(
-                              top: 10, bottom: 90, left: 0, right: 0),
-                          child: Container(
-                            height: 45,
-                            width: 150,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              color: Color.fromARGB(255, 43, 43, 43),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 5),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.keyboard_arrow_down_rounded,
-                                      color: Colors.white),
-                                  Text(
-                                    "Completed",
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 17),
-                                  ),
-                                ],
+                              child:  Padding(
+                                padding: EdgeInsets.only(left: 5),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.keyboard_arrow_down_rounded, color: Constants.textColor),
+                                    Text(
+                                      "Completed",
+                                      style: TextStyle(color: Constants.textColor, fontSize: 17),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                    ],
+
+                      
+                        ...completedTasks.map((task) => taskTile(task, true)),    //same logic for completed tasks like before
+                      ],
+                    ),
                   ),
                   Align(
                     alignment: Alignment.bottomCenter,
@@ -157,10 +110,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Expanded(
                             child: MouseRegion(
-                              onEnter: (_) => setState(() =>
-                                  bgColor = Color.fromARGB(255, 63, 63, 63)),
-                              onExit: (_) => setState(() =>
-                                  bgColor = Color.fromARGB(255, 43, 43, 43)),
+                              onEnter: (_) => setState(() => bgColor = Constants.hoverColor),
+                              onExit: (_) => setState(() => bgColor = Constants.nonHoverColor),
                               child: Container(
                                 margin: const EdgeInsets.only(bottom: 20),
                                 decoration: BoxDecoration(
@@ -169,25 +120,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 child: Row(
                                   children: [
-                                    SizedBox(width: 10),
-                                    Icon(
+                                    const SizedBox(width: 10),
+                                     Icon(
                                       Icons.add,
-                                      color: Colors.blue,
+                                      color: Constants.checkColor,
                                       size: 25,
                                     ),
-                                    SizedBox(width: 10),
+                                    const SizedBox(width: 10),
                                     Expanded(
                                       child: TextField(
                                         controller: taskController,
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                        decoration: const InputDecoration(
+                                        style:  TextStyle(color: Constants.textColor),
+                                        decoration:  InputDecoration(
                                           hintText: 'Add a task',
-                                          hintStyle:
-                                              TextStyle(color: Colors.blue),
+                                          hintStyle: TextStyle(color: Constants.checkColor),
                                           border: InputBorder.none,
-                                          contentPadding: EdgeInsets.symmetric(
-                                              horizontal: 10),
+                                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
                                         ),
                                         onSubmitted: (value) => addTask(),
                                       ),
@@ -206,6 +154,56 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget taskTile(String task, bool isCompleted) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => hover = task.hashCode),    //hashcode used to identify on which task the mouse is
+      onExit: (_) => setState(() => hover = null),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5),
+        ),
+        color: hover == task.hashCode ? Constants.hoverColor : Constants.nonHoverColor,
+        margin: const EdgeInsets.symmetric(vertical: 3),
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () => toggleTask(task, isCompleted),
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Constants.textColor, width: 2),
+                    color: isCompleted ? Constants.checkColor : Colors.transparent,
+                  ),
+                  child: isCompleted
+                      ?  Icon(
+                          Icons.check,
+                          color: Constants.textColor,
+                          size: 16,
+                        )
+                      : null,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                task,
+                style: TextStyle(
+                  color: Constants.textColor,
+                  decoration: isCompleted ? TextDecoration.lineThrough : TextDecoration.none,
+                  decorationThickness: 3,
+                  decorationColor: Constants.textColor,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
