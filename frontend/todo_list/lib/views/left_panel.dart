@@ -6,7 +6,9 @@ import '../models/todo_list.dart';
 import '../repositories/getlist_repo.dart';
 
 class LeftPanel extends StatefulWidget {
-  const LeftPanel({super.key});
+  final Function(TodoList, String) onListSelected;
+
+  const LeftPanel({super.key, required this.onListSelected});
 
   @override
   State<LeftPanel> createState() => _LeftPanelState();
@@ -52,6 +54,7 @@ class _LeftPanelState extends State<LeftPanel> {
     setState(() {
       todoList = fetchedList;
       addedNewList = todoList.map((todo) => todo.listName).toList();
+      widget.onListSelected(todoList[0], todoList[0].listName);
     });
   }
 
@@ -87,6 +90,7 @@ class _LeftPanelState extends State<LeftPanel> {
                 SizedBox(
                   height: 10,
                 ),
+                //defaultlist
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
@@ -121,6 +125,9 @@ class _LeftPanelState extends State<LeftPanel> {
                                             color: Colors.white, fontSize: 12),
                                       ),
                                     ),
+                                    // onTap: () {
+                                    //   widget.onListSelected();
+                                    // },
                                   ),
                                 ),
                               );
@@ -129,11 +136,16 @@ class _LeftPanelState extends State<LeftPanel> {
                           thickness: 1,
                           color: Colors.grey[600],
                         ),
+                        //created list
                         ListView.builder(
-                          itemCount: listCount,
+                          itemCount: isListAdd
+                              ? addedNewList.length + 1
+                              : addedNewList.length,
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
                           itemBuilder: (BuildContext context, int index) {
+                            // final selectedListData = todoList[
+                            //     index];
                             if (isListAdd && index == addedNewList.length) {
                               return ListTile(
                                 leading: Icon(
@@ -148,8 +160,7 @@ class _LeftPanelState extends State<LeftPanel> {
                                     setState(() {
                                       addedNewList.add(value.trim());
                                       isListAdd = false;
-                                      newListRepo.createNewList(
-                                          value.trim().toString());
+                                      newListRepo.createNewList(value.trim());
                                       newListController.clear();
                                     });
                                   },
@@ -192,6 +203,10 @@ class _LeftPanelState extends State<LeftPanel> {
                                             color: Colors.white, fontSize: 12),
                                       ),
                                     ),
+                                    onTap: () {
+                                      widget.onListSelected(
+                                          todoList[index], addedNewList[index]);
+                                    },
                                   ),
                                 ),
                               );
@@ -201,6 +216,9 @@ class _LeftPanelState extends State<LeftPanel> {
                       ],
                     ),
                   ),
+                ),
+                SizedBox(
+                  height: 40,
                 ),
               ],
             ),
