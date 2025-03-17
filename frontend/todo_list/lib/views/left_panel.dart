@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:todo_list/repositories/new_list_repo.dart';
 
 import '../core/constants.dart';
+import '../models/todo_list.dart';
+import '../repositories/getlist_repo.dart';
 
 class LeftPanel extends StatefulWidget {
   const LeftPanel({super.key});
@@ -34,12 +36,29 @@ class _LeftPanelState extends State<LeftPanel> {
   int? _isHovered;
   int? _isHover;
 
-  final TextEditingController NewListController = TextEditingController();
+  final TextEditingController newListController = TextEditingController();
+  late List<TodoList> todoList;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    loadTodoList();
+  }
+
+  Future<void> loadTodoList() async {
+    ListData listDataInstance = ListData();
+    List<TodoList> fetchedList = await listDataInstance.getListData();
+    setState(() {
+      todoList = fetchedList;
+      addedNewList = todoList.map((todo) => todo.listName).toList();
+    });
+  }
 
   @override
   void dispose() {
     // TODO: implement dispose
-    NewListController.dispose();
+    newListController.dispose();
     super.dispose();
   }
 
@@ -124,14 +143,14 @@ class _LeftPanelState extends State<LeftPanel> {
                                 title: TextField(
                                   autofocus: true,
                                   cursorColor: Colors.white,
-                                  controller: NewListController,
+                                  controller: newListController,
                                   onSubmitted: (value) {
                                     setState(() {
                                       addedNewList.add(value.trim());
                                       isListAdd = false;
                                       newListRepo.createNewList(
                                           value.trim().toString());
-                                      NewListController.clear();
+                                      newListController.clear();
                                     });
                                   },
                                   decoration: InputDecoration(

@@ -33,7 +33,7 @@ router.post('/newTask/:listId', async (req, res) => {
   try {
     const listId = parseInt(req.params.listId, 10);
 
-    const { task, status } = req.body;
+    const { task, status, dueDate } = req.body;
 
     if (!task) {
       return res.status(400).json({ error: "Task name is required" });
@@ -49,7 +49,7 @@ router.post('/newTask/:listId', async (req, res) => {
 
     const updatedList = await Todo_list.findOneAndUpdate(
       { listId: listId },
-      { $push: { tasks: { taskId: newTaskId, task } } },
+      { $push: { tasks: { taskId: newTaskId, task, dueDate } } },
       { new: true }
     );
 
