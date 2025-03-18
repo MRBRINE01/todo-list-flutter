@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todo_list/views/right_panel.dart';
 import '../models/todo_list.dart';
 import '../repositories/getlist_repo.dart';
 import 'left_panel.dart';
@@ -38,14 +39,12 @@ class _MainLayoutState extends State<MainLayout> {
             color: Colors.grey[700],
           ),
           Expanded(
-            flex: 4,
-            child: selectedList != null
-                ? TaskScreen(
-                    todoList: selectedList!, listName: selectedListName)
-                : Center(
-                    child: Text("Select a list to view tasks",
-                        style: TextStyle(color: Colors.white))),
-          ),
+              flex: 4,
+              child: selectedList != null
+                  ? TaskScreen(
+                      todoList: selectedList!, listName: selectedListName)
+                  : CircularProgressIndicator()),
+          Expanded(flex: 1, child: RightPanel()),
         ],
       ),
     );

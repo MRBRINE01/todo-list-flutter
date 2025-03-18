@@ -10,7 +10,7 @@ class RightPanel extends StatefulWidget {
 }
 
 class _RightPanelState extends State<RightPanel> {
-  bool isChecked = false;
+  bool isCompleted = false;
 
   TextEditingController dateController = TextEditingController();
   String? selectedDate;
@@ -27,8 +27,7 @@ class _RightPanelState extends State<RightPanel> {
                   colorScheme: ColorScheme.dark(
                       primary: Constants.calender1Color,
                       onPrimary: Constants.calender1Color,
-                      onSurface: Constants.calender1Color)
-                      ),
+                      onSurface: Constants.calender1Color)),
               child: child!);
         });
 
@@ -58,26 +57,38 @@ class _RightPanelState extends State<RightPanel> {
               child: Row(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Checkbox(
-                      value: isChecked,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          isChecked = value!;
-                        });
-                      },
-                      checkColor: Constants.textColor,
-                      side: BorderSide(color: Constants.textColor, width: 1),
+                    padding: const EdgeInsets.only(left: 10),
+                    child: GestureDetector(
+                      // onTap: () => toggleTask(task, isCompleted),
+                      child: Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border:
+                              Border.all(color: Constants.textColor, width: 2),
+                          color: isCompleted
+                              ? Constants.checkColor
+                              : Colors.transparent,
+                        ),
+                        child: isCompleted
+                            ? Icon(
+                                Icons.check,
+                                color: Constants.textColor,
+                                size: 16,
+                              )
+                            : null,
+                      ),
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 5),
+                    padding: const EdgeInsets.only(left: 10),
                     child: Text(
                       "Task name",
                       style: TextStyle(
                         color: Constants.textColor,
-                        fontSize: 20,
-                        decoration: isChecked
+                        fontSize: 18,
+                        decoration: isCompleted
                             ? TextDecoration.lineThrough
                             : TextDecoration.none,
                         decorationColor: Constants.textColor,
@@ -101,10 +112,10 @@ class _RightPanelState extends State<RightPanel> {
               child: Row(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.only(left: 10),
                     child: Icon(
                       Icons.wb_sunny_outlined,
-                      size: 25,
+                      size: 23,
                       color: Constants.textColor,
                     ),
                   ),
@@ -113,7 +124,7 @@ class _RightPanelState extends State<RightPanel> {
                     child: Text(
                       "Add to my day",
                       style:
-                          TextStyle(color: Constants.textColor, fontSize: 20),
+                          TextStyle(color: Constants.textColor, fontSize: 18),
                     ),
                   ),
                 ],
@@ -132,13 +143,14 @@ class _RightPanelState extends State<RightPanel> {
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 10),
+                    padding: const EdgeInsets.only(top: 15),
                     child: Row(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.only(left: 10),
                           child: Icon(
                             Icons.watch_later_outlined,
+                            size: 23,
                             color: Constants.textColor,
                           ),
                         ),
@@ -147,14 +159,16 @@ class _RightPanelState extends State<RightPanel> {
                           child: Text(
                             "Remind Me",
                             style: TextStyle(
-                                color: Constants.textColor, fontSize: 20),
+                              color: Constants.textColor,
+                              fontSize: 18,
+                            ),
                           ),
                         )
                       ],
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(right: 10, left: 10),
+                    padding: const EdgeInsets.all(10),
                     child: Divider(thickness: 1, color: Constants.dividerColor),
                   ),
                   GestureDetector(
@@ -166,9 +180,10 @@ class _RightPanelState extends State<RightPanel> {
                           child: Row(
                             children: [
                               Padding(
-                                padding: const EdgeInsets.all(10),
+                                padding: const EdgeInsets.only(left: 10),
                                 child: Icon(
                                   Icons.calendar_month,
+                                  size: 23,
                                   color: Constants.textColor,
                                 ),
                               ),
@@ -177,7 +192,7 @@ class _RightPanelState extends State<RightPanel> {
                                 child: Text(
                                   selectedDate ?? "Add Due Date",
                                   style: TextStyle(
-                                      color: Constants.textColor, fontSize: 20),
+                                      color: Constants.textColor, fontSize: 18),
                                 ),
                               )
                             ],

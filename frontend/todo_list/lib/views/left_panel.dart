@@ -3,6 +3,8 @@ import 'package:todo_list/repositories/new_list_repo.dart';
 
 import '../core/constants.dart';
 import '../models/todo_list.dart';
+import '../repositories/delete_list_repo.dart';
+import '../repositories/edit_list_repo.dart';
 import '../repositories/getlist_repo.dart';
 
 class LeftPanel extends StatefulWidget {
@@ -67,7 +69,6 @@ class _LeftPanelState extends State<LeftPanel> {
 
   @override
   Widget build(BuildContext context) {
-    int listCount = addedNewList.length + (isListAdd ? 1 : 0);
     return Scaffold(
       body: Stack(
         children: [
@@ -144,8 +145,6 @@ class _LeftPanelState extends State<LeftPanel> {
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
                           itemBuilder: (BuildContext context, int index) {
-                            // final selectedListData = todoList[
-                            //     index];
                             if (isListAdd && index == addedNewList.length) {
                               return ListTile(
                                 leading: Icon(
@@ -181,32 +180,43 @@ class _LeftPanelState extends State<LeftPanel> {
                                 onEnter: (_) =>
                                     setState(() => _isHover = index),
                                 onExit: (_) => setState(() => _isHover = null),
-                                child: ColoredBox(
-                                  color: _isHover == index
-                                      ? Constants.hoverColor
-                                      : Constants.surfaceColor,
-                                  child: ListTile(
-                                    leading: Icon(
-                                      Icons.menu,
-                                      color: Colors.blue,
-                                    ),
-                                    title: Text(
-                                      addedNewList[index],
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    trailing: CircleAvatar(
-                                      radius: 10,
-                                      backgroundColor: Colors.grey[800],
-                                      child: Text(
-                                        "3",
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 12),
+                                child: GestureDetector(
+                                  onSecondaryTapUp: (details) {
+                                    _showContextMenu(
+                                        context,
+                                        index,
+                                        details.globalPosition,
+                                        todoList[index].listId);
+                                  },
+                                  child: ColoredBox(
+                                    color: _isHover == index
+                                        ? Constants.hoverColor
+                                        : Constants.surfaceColor,
+                                    child: ListTile(
+                                      leading: Icon(
+                                        Icons.menu,
+                                        color: Colors.blue,
                                       ),
+                                      title: Text(
+                                        addedNewList[index],
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 18),
+                                      ),
+                                      trailing: CircleAvatar(
+                                        radius: 10,
+                                        backgroundColor: Colors.grey[800],
+                                        child: Text(
+                                          "3",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12),
+                                        ),
+                                      ),
+                                      onTap: () {
+                                        widget.onListSelected(todoList[index],
+                                            addedNewList[index]);
+                                      },
                                     ),
-                                    onTap: () {
-                                      widget.onListSelected(
-                                          todoList[index], addedNewList[index]);
-                                    },
                                   ),
                                 ),
                               );
@@ -259,6 +269,124 @@ class _LeftPanelState extends State<LeftPanel> {
                 ),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showContextMenu(
+      BuildContext context, int index, Offset position, int listId) {
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+
+    showMenu(
+      context: context,
+      color: Constants.surfaceColor,
+      position: RelativeRect.fromRect(
+        Rect.fromPoints(
+          position,
+          position,
+        ),
+        Offset.zero & overlay.size,
+      ),
+      items: [
+        PopupMenuItem(
+          value: 'edit',
+          child: Row(
+            children: [
+              Icon(Icons.edit, color: Colors.blue),
+              SizedBox(width: 8),
+              Text('Edit', style: TextStyle(color: Colors.white)),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'delete',
+          child: Row(
+            children: [
+              Icon(Icons.delete, color: Colors.red),
+              SizedBox(width: 8),
+              Text('Delete', style: TextStyle(color: Colors.white)),
+            ],
+          ),
+        ),
+      ],
+    ).then((value) {
+      if (value == 'edit') {
+        _editList(index, listId);
+      } else if (value == 'delete') {
+        _deleteList(index, listId);
+      }
+    });
+  }
+
+  void _editList(int index, int listId) {
+    // Set up the controller with the current list name
+    TextEditingController editController =
+        TextEditingController(text: addedNewList[index]);
+    EditListRepo editList = EditListRepo();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Constants.surfaceColor,
+        title: Text('Edit List', style: TextStyle(color: Colors.white)),
+        content: TextField(
+          controller: editController,
+          autofocus: true,
+          style: TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.blue),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            child: Text('Cancel', style: TextStyle(color: Colors.white)),
+            onPressed: () => Navigator.pop(context),
+          ),
+          TextButton(
+            child: Text('Save', style: TextStyle(color: Colors.blue)),
+            onPressed: () {
+              setState(() {
+                addedNewList[index] = editController.text.trim();
+                editList.editList(editController.text.trim(), listId);
+              });
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteList(int index, int listId) {
+    DeleteListRepo deleteList = DeleteListRepo();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Constants.surfaceColor,
+        title: Text('Delete List', style: TextStyle(color: Colors.white)),
+        content: Text(
+            'Are you sure you want to delete "${addedNewList[index]}"?',
+            style: TextStyle(color: Colors.white)),
+        actions: [
+          TextButton(
+            child: Text('Cancel', style: TextStyle(color: Colors.white)),
+            onPressed: () => Navigator.pop(context),
+          ),
+          TextButton(
+            child: Text('Delete', style: TextStyle(color: Colors.red)),
+            onPressed: () {
+              setState(() {
+                todoList.removeAt(index);
+                addedNewList.removeAt(index);
+                deleteList.deleteList(listId);
+              });
+              Navigator.pop(context);
+            },
           ),
         ],
       ),

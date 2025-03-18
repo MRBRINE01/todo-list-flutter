@@ -2,8 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:todo_list/views/left_panel.dart';
 import 'package:todo_list/views/main_layout.dart';
 import 'package:todo_list/views/right_panel.dart';
+import 'dart:js' as js;
 
 void main() {
+  // Disable browser's default context menu
+  js.context.callMethod('eval', [
+    '''
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      return false;
+    });
+  '''
+  ]);
   runApp(const MyApp());
 }
 
