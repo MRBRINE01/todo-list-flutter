@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:todo_list/core/constants.dart';
-import 'package:todo_list/models/todo_list.dart';
+import 'package:todo_list/models/todo_list_model.dart';
+
+import '../repositories/tasks_repo/add_task_repo.dart';
 
 class TaskScreen extends StatefulWidget {
+  final Function(String, bool, VoidCallback) onTaskSelected;
   final TodoList todoList;
   final String? listName;
 
-  const TaskScreen({super.key, required this.todoList, required this.listName});
+  const TaskScreen(
+      {super.key,
+      required this.todoList,
+      required this.listName,
+      required this.onTaskSelected});
 
   @override
   State<TaskScreen> createState() => _TaskScreenState();
@@ -19,6 +26,8 @@ class _TaskScreenState extends State<TaskScreen> {
   List<String> completedTasks = [];
   Color bgColor = Constants.nonHoverColor;
   int? hover;
+
+  AddTaskRepo addtask = AddTaskRepo();
 
   @override
   void initState() {
@@ -168,18 +177,23 @@ class _TaskScreenState extends State<TaskScreen> {
                               const SizedBox(width: 10),
                               Expanded(
                                 child: TextField(
-                                  controller: taskController,
-                                  style: TextStyle(color: Constants.textColor),
-                                  decoration: InputDecoration(
-                                    hintText: 'Add a task',
-                                    hintStyle:
-                                        TextStyle(color: Constants.checkColor),
-                                    border: InputBorder.none,
-                                    contentPadding:
-                                        EdgeInsets.symmetric(horizontal: 10),
-                                  ),
-                                  onSubmitted: (value) => addTask(),
-                                ),
+                                    controller: taskController,
+                                    cursorColor: Constants.textColor,
+                                    style:
+                                        TextStyle(color: Constants.textColor),
+                                    decoration: InputDecoration(
+                                      hintText: 'Add a task',
+                                      hintStyle: TextStyle(
+                                          color: Constants.checkColor),
+                                      border: InputBorder.none,
+                                      contentPadding:
+                                          EdgeInsets.symmetric(horizontal: 10),
+                                    ),
+                                    onSubmitted: (value) {
+                                      addTask();
+                                      addtask.addTask(
+                                          value, widget.todoList.listId);
+                                    }),
                               ),
                             ],
                           ),
@@ -201,51 +215,58 @@ class _TaskScreenState extends State<TaskScreen> {
       onEnter: (_) => setState(() => hover =
           task.hashCode), //hashcode used to identify on which task the mouse is
       onExit: (_) => setState(() => hover = null),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5),
-        ),
-        color: hover == task.hashCode
-            ? Constants.hoverColor
-            : Constants.nonHoverColor,
-        margin: const EdgeInsets.symmetric(vertical: 3),
-        child: Padding(
-          padding: const EdgeInsets.all(15),
-          child: Row(
-            children: [
-              GestureDetector(
-                onTap: () => toggleTask(task, isCompleted),
-                child: Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Constants.textColor, width: 2),
-                    color:
-                        isCompleted ? Constants.checkColor : Colors.transparent,
+      child: GestureDetector(
+        onTap: () {
+          widget.onTaskSelected(
+              task, isCompleted, () => toggleTask(task, isCompleted));
+        },
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
+          color: hover == task.hashCode
+              ? Constants.hoverColor
+              : Constants.nonHoverColor,
+          margin: const EdgeInsets.symmetric(vertical: 3),
+          child: Padding(
+            padding: const EdgeInsets.all(15),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => toggleTask(task, isCompleted),
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Constants.textColor, width: 2),
+                      color: isCompleted
+                          ? Constants.checkColor
+                          : Colors.transparent,
+                    ),
+                    child: isCompleted
+                        ? Icon(
+                            Icons.check,
+                            color: Constants.textColor,
+                            size: 16,
+                          )
+                        : null,
                   ),
-                  child: isCompleted
-                      ? Icon(
-                          Icons.check,
-                          color: Constants.textColor,
-                          size: 16,
-                        )
-                      : null,
                 ),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                task,
-                style: TextStyle(
-                  color: Constants.textColor,
-                  decoration: isCompleted
-                      ? TextDecoration.lineThrough
-                      : TextDecoration.none,
-                  decorationThickness: 3,
-                  decorationColor: Constants.textColor,
+                const SizedBox(width: 10),
+                Text(
+                  task,
+                  style: TextStyle(
+                    color: Constants.textColor,
+                    decoration: isCompleted
+                        ? TextDecoration.lineThrough
+                        : TextDecoration.none,
+                    decorationThickness: 3,
+                    decorationColor: Constants.textColor,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

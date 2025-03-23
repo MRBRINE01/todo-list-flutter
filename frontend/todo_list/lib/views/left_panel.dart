@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:todo_list/repositories/new_list_repo.dart';
+import 'package:todo_list/repositories/list_reop/new_list_repo.dart';
 
 import '../core/constants.dart';
-import '../models/todo_list.dart';
-import '../repositories/delete_list_repo.dart';
-import '../repositories/edit_list_repo.dart';
-import '../repositories/getlist_repo.dart';
+import '../models/todo_list_model.dart';
+import '../repositories/list_reop/delete_list_repo.dart';
+import '../repositories/list_reop/edit_list_repo.dart';
+import '../repositories/list_reop/getlist_repo.dart';
 
 class LeftPanel extends StatefulWidget {
   final Function(TodoList, String) onListSelected;
@@ -56,7 +56,8 @@ class _LeftPanelState extends State<LeftPanel> {
     setState(() {
       todoList = fetchedList;
       addedNewList = todoList.map((todo) => todo.listName).toList();
-      widget.onListSelected(todoList[0], todoList[0].listName);
+      widget.onListSelected(
+          todoList[0], todoList[0].listName);
     });
   }
 
@@ -77,6 +78,7 @@ class _LeftPanelState extends State<LeftPanel> {
             child: Column(
               children: [
                 TextField(
+                  cursorColor: Constants.textColor,
                   decoration: InputDecoration(
                     suffixIcon: Icon(
                       Icons.search,
@@ -153,7 +155,7 @@ class _LeftPanelState extends State<LeftPanel> {
                                 ),
                                 title: TextField(
                                   autofocus: true,
-                                  cursorColor: Colors.white,
+                                  cursorColor: Constants.textColor,
                                   controller: newListController,
                                   onSubmitted: (value) {
                                     setState(() {

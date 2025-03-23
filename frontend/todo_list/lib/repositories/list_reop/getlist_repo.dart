@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:todo_list/models/todo_list.dart';
-import '../core/constants.dart';
+import 'package:todo_list/models/todo_list_model.dart';
+import '../../core/constants.dart';
 
 class ListData {
   Future<List<TodoList>> getListData() async {

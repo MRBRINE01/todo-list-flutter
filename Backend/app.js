@@ -6,6 +6,7 @@ const cors = require('cors');
 const taskSchema = new mongoose.Schema({
   taskId: Number,
   task: String,
+  note: String,
   status: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   dueDate: { type: Date }

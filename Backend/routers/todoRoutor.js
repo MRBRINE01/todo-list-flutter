@@ -144,6 +144,7 @@ router.delete('/deleteTask/:listId/:taskId', async (req, res) => {
     const { task } = req.body;
     const { status } = req.body;
     const { dueDate } = req.body;
+    const { note } = req.body;
 
     if (!task) {
       return res.status(400).json({ error: "Task name is required" });
@@ -154,7 +155,7 @@ router.delete('/deleteTask/:listId/:taskId', async (req, res) => {
 
     const updatedTask = await Todo_list.findOneAndUpdate(
       {listId: listId, "tasks.taskId": taskId},
-      {$set : {"tasks.$.task": task, "tasks.$.status": status, "tasks.$.dueDate": dueDate}},
+      {$set : {"tasks.$.task": task, "tasks.$.status": status, "tasks.$.dueDate": dueDate, "tasks.$.note": note}},
       {new: true}
     );
 

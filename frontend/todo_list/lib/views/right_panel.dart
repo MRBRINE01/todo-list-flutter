@@ -3,18 +3,35 @@ import 'package:intl/intl.dart';
 import 'package:todo_list/core/constants.dart';
 
 class RightPanel extends StatefulWidget {
-  const RightPanel({super.key});
+  final String? taskName;
+  final bool? isCompleted;
+  final VoidCallback? onToggleTask;
+
+  const RightPanel({
+    super.key,
+    required this.taskName,
+    required this.isCompleted,
+    required this.onToggleTask,
+  });
 
   @override
   State<RightPanel> createState() => _RightPanelState();
 }
 
 class _RightPanelState extends State<RightPanel> {
-  bool isCompleted = false;
-
+  late bool isCompleted;
+  TextEditingController noteController = TextEditingController();
   TextEditingController dateController = TextEditingController();
+  TextEditingController taskNameController = TextEditingController();
   String? selectedDate;
   String? apiDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+  @override
+  void initState() {
+    super.initState();
+    isCompleted = widget.isCompleted!;
+    taskNameController.text = widget.taskName!;
+  }
 
   Future<void> selectDate(BuildContext context) async {
     DateTime? pickedDate = await showDatePicker(
@@ -34,7 +51,6 @@ class _RightPanelState extends State<RightPanel> {
     if (pickedDate != null) {
       setState(() {
         selectedDate = DateFormat('dd-MM-yyyy').format(pickedDate);
-
         print("Selected Date: $selectedDate");
       });
     }
@@ -59,7 +75,12 @@ class _RightPanelState extends State<RightPanel> {
                   Padding(
                     padding: const EdgeInsets.only(left: 10),
                     child: GestureDetector(
-                      // onTap: () => toggleTask(task, isCompleted),
+                      onTap: () {
+                        setState(() {
+                          isCompleted = !isCompleted;
+                        });
+                        widget.onToggleTask!();
+                      },
                       child: Container(
                         width: 20,
                         height: 20,
@@ -81,18 +102,19 @@ class _RightPanelState extends State<RightPanel> {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: Text(
-                      "Task name",
-                      style: TextStyle(
-                        color: Constants.textColor,
-                        fontSize: 18,
-                        decoration: isCompleted
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none,
-                        decorationColor: Constants.textColor,
-                        decorationThickness: 2,
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: TextField(
+                        cursorColor: Colors.white,
+                        controller: taskNameController,
+                        style: TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blue),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -208,6 +230,7 @@ class _RightPanelState extends State<RightPanel> {
           Padding(
             padding: EdgeInsets.all(16.0),
             child: TextField(
+              controller: noteController,
               cursorColor: Constants.textColor,
               decoration: InputDecoration(
                 hintText: "Add Note",
@@ -228,7 +251,8 @@ class _RightPanelState extends State<RightPanel> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Created on 2-04-2024",
+              Text(
+                  "Created on ${DateFormat('dd-MM-yyyy').format(DateTime.now())}",
                   style: TextStyle(color: Constants.textColor)),
             ],
           ),
