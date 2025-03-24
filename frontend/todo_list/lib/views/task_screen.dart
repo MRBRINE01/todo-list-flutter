@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:todo_list/core/constants.dart';
+import 'package:todo_list/models/task_model.dart';
 import 'package:todo_list/models/todo_list_model.dart';
 
 import '../repositories/tasks_repo/add_task_repo.dart';
 
 class TaskScreen extends StatefulWidget {
-  final Function(String, bool, VoidCallback) onTaskSelected;
-  final TodoList todoList;
+  final Function(TaskModel, bool, VoidCallback) onTaskSelected;
+  final TodoListModel todoList;
   final String? listName;
 
   const TaskScreen(
@@ -21,9 +22,8 @@ class TaskScreen extends StatefulWidget {
 
 class _TaskScreenState extends State<TaskScreen> {
   final TextEditingController taskController = TextEditingController();
-  List<String> taskList = [];
-  List<String> pendingTasks = [];
-  List<String> completedTasks = [];
+  List<TaskModel> pendingTaskModels = [];
+  List<TaskModel> completedTaskModels = [];
   Color bgColor = Constants.nonHoverColor;
   int? hover;
 
@@ -31,7 +31,6 @@ class _TaskScreenState extends State<TaskScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     setData();
   }
@@ -40,19 +39,32 @@ class _TaskScreenState extends State<TaskScreen> {
   void didUpdateWidget(TaskScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.todoList != oldWidget.todoList) {
-      pendingTasks.clear();
-      completedTasks.clear();
       setData();
     }
   }
 
   void setData() {
     setState(() {
+      pendingTaskModels.clear();
+      completedTaskModels.clear();
+
       for (var taskItem in widget.todoList.tasks) {
-        if (taskItem['status'] == false) {
-          pendingTasks.add(taskItem['task']);
+        // Convert each task item to a TaskModel
+        Map<String, dynamic> taskJson = {
+          'taskId': taskItem['taskId'] ?? 0,
+          'task': taskItem['task'] as String,
+          'isCompleted': taskItem['status'] as bool,
+          'dueDate': taskItem['dueDate'] ?? '',
+          'note': taskItem['note'] ?? '',
+        };
+
+        TaskModel taskModel = TaskModel.fromJson(taskJson);
+
+        // Add to appropriate lists based on completion status
+        if (!taskModel.isCompleted) {
+          pendingTaskModels.add(taskModel);
         } else {
-          completedTasks.add(taskItem['task']);
+          completedTaskModels.add(taskModel);
         }
       }
     });
@@ -60,31 +72,57 @@ class _TaskScreenState extends State<TaskScreen> {
 
   void addTask() {
     setState(() {
-      String task = taskController.text
-          .trim(); //removes the whitespace charaters so that empty tasks cant be added
-      if (task.isNotEmpty) {
-        pendingTasks.add(task);
+      String taskText = taskController.text.trim();
+      if (taskText.isNotEmpty) {
+        // Create a new TaskModel for the task
+        TaskModel newTask = TaskModel(
+          
+          task: taskText,
+          isCompleted: false,
+          note: '', 
+        );
+        pendingTaskModels.add(newTask);
       }
       taskController.clear();
     });
   }
 
-  void toggleTask(String task, bool isCompleted) {
-    //function to move tasks from pending to completed tasks and vice versa
+  void toggleTask(TaskModel taskModel, bool isCompleted) {
     setState(() {
       if (isCompleted) {
-        completedTasks.remove(task);
-        pendingTasks.add(task);
+        // Task is currently completed, move to pending
+        completedTaskModels
+            .removeWhere((task) => task.taskId == taskModel.taskId);
+
+        // Create a new TaskModel with updated isCompleted status
+        TaskModel updatedTask = TaskModel(
+          taskId: taskModel.taskId,
+          task: taskModel.task,
+          isCompleted: false,
+          dueDate: taskModel.dueDate,
+          note: taskModel.note,
+        );
+        pendingTaskModels.add(updatedTask);
       } else {
-        pendingTasks.remove(task);
-        completedTasks.add(task);
+        // Task is currently pending, move to completed
+        pendingTaskModels
+            .removeWhere((task) => task.taskId == taskModel.taskId);
+
+        // Create a new TaskModel with updated isCompleted status
+        TaskModel updatedTask = TaskModel(
+          taskId: taskModel.taskId,
+          task: taskModel.task,
+          isCompleted: true,
+          dueDate: taskModel.dueDate,
+          note: taskModel.note,
+        );
+        completedTaskModels.add(updatedTask);
       }
     });
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     taskController.dispose();
     super.dispose();
   }
@@ -107,27 +145,21 @@ class _TaskScreenState extends State<TaskScreen> {
             const SizedBox(height: 15),
             Expanded(
               child: ListView(
-                //created a list view intead of list view builder beacause it allows to add tasks or items anywhere between the list
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  ...pendingTasks.map((task) => taskTile(task,
-                      false)), //creates a list of task dynamically and places them inside the ListView.
-                  //.map() goes through each task inside pending tasks and changes it into a task tile.
-                  //... is a spread operator that breaks the list and adds each widget separately into list view.
-
-                  if (completedTasks
-                      .isNotEmpty) //will show only if task is checked
+                  ...pendingTaskModels
+                      .map((taskModel) => taskTile(taskModel, false)),
+                  if (completedTaskModels.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 10, bottom: 10),
                       child: Container(
                         height: 50,
-                        //width: 150,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5),
                           color: Constants.nonHoverColor,
                         ),
                         child: Padding(
-                          padding: EdgeInsets.only(left: 5),
+                          padding: const EdgeInsets.only(left: 5),
                           child: Row(
                             children: [
                               Icon(Icons.keyboard_arrow_down_rounded,
@@ -142,9 +174,8 @@ class _TaskScreenState extends State<TaskScreen> {
                         ),
                       ),
                     ),
-
-                  ...completedTasks.map((task) => taskTile(
-                      task, true)), //same logic for completed tasks like before
+                  ...completedTaskModels
+                      .map((taskModel) => taskTile(taskModel, true)),
                 ],
               ),
             ),
@@ -187,7 +218,8 @@ class _TaskScreenState extends State<TaskScreen> {
                                           color: Constants.checkColor),
                                       border: InputBorder.none,
                                       contentPadding:
-                                          EdgeInsets.symmetric(horizontal: 10),
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 10),
                                     ),
                                     onSubmitted: (value) {
                                       addTask();
@@ -210,21 +242,20 @@ class _TaskScreenState extends State<TaskScreen> {
     );
   }
 
-  Widget taskTile(String task, bool isCompleted) {
+  Widget taskTile(TaskModel taskModel, bool isCompleted) {
     return MouseRegion(
-      onEnter: (_) => setState(() => hover =
-          task.hashCode), //hashcode used to identify on which task the mouse is
+      onEnter: (_) => setState(() => hover = taskModel.taskId),
       onExit: (_) => setState(() => hover = null),
       child: GestureDetector(
         onTap: () {
           widget.onTaskSelected(
-              task, isCompleted, () => toggleTask(task, isCompleted));
+              taskModel, isCompleted, () => toggleTask(taskModel, isCompleted));
         },
         child: Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5),
           ),
-          color: hover == task.hashCode
+          color: hover == taskModel.taskId
               ? Constants.hoverColor
               : Constants.nonHoverColor,
           margin: const EdgeInsets.symmetric(vertical: 3),
@@ -233,7 +264,7 @@ class _TaskScreenState extends State<TaskScreen> {
             child: Row(
               children: [
                 GestureDetector(
-                  onTap: () => toggleTask(task, isCompleted),
+                  onTap: () => toggleTask(taskModel, isCompleted),
                   child: Container(
                     width: 24,
                     height: 24,
@@ -255,7 +286,7 @@ class _TaskScreenState extends State<TaskScreen> {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  task,
+                  taskModel.task,
                   style: TextStyle(
                     color: Constants.textColor,
                     decoration: isCompleted

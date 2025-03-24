@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todo_list/models/task_model.dart';
 import 'package:todo_list/views/right_panel.dart';
 import '../models/todo_list_model.dart';
 import '../repositories/list_reop/getlist_repo.dart';
@@ -13,19 +14,21 @@ class MainLayout extends StatefulWidget {
 }
 
 class _MainLayoutState extends State<MainLayout> {
-  TodoList? selectedList;
+  TodoListModel? selectedList;
   String? selectedListName;
-  // int? selectedListId;
+  TaskModel? taskData;
+  int? selectedListId;
 
-  void onListSelected(TodoList list, String listName) {
+  void onListSelected(TodoListModel list, String listName) {
     setState(() {
       selectedList = list;
       selectedListName = listName;
-      // selectedListId = listId;
+      selectedListId = selectedList!.listId;
+      print(selectedListId);
 
-      taskName = null;
-      isComplete = null;
+      taskData = null;
       onToggleTask = null;
+      selectedListId = null;
     });
   }
 
@@ -34,10 +37,10 @@ class _MainLayoutState extends State<MainLayout> {
   VoidCallback? onToggleTask;
 
   void onTaskSelected(
-      String taskname, bool iscomplete, VoidCallback ontoggletask) {
+      TaskModel taskdata, bool iscomplete, VoidCallback ontoggletask) {
     setState(() {
-      taskName = taskname;
-      isComplete = iscomplete;
+      taskData = taskdata;
+      taskName = taskData!.task;
       onToggleTask = ontoggletask;
     });
   }
@@ -68,8 +71,8 @@ class _MainLayoutState extends State<MainLayout> {
               ? Expanded(
                   flex: 1,
                   child: RightPanel(
-                    taskName: taskName,
-                    isCompleted: isComplete,
+                    listId: selectedList!.listId,
+                    taskData: taskData,
                     onToggleTask: () {},
                   ),
                 )

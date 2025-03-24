@@ -8,7 +8,7 @@ import '../repositories/list_reop/edit_list_repo.dart';
 import '../repositories/list_reop/getlist_repo.dart';
 
 class LeftPanel extends StatefulWidget {
-  final Function(TodoList, String) onListSelected;
+  final Function(TodoListModel, String) onListSelected;
 
   const LeftPanel({super.key, required this.onListSelected});
 
@@ -41,7 +41,7 @@ class _LeftPanelState extends State<LeftPanel> {
   int? _isHover;
 
   final TextEditingController newListController = TextEditingController();
-  late List<TodoList> todoList;
+  late List<TodoListModel> todoList;
 
   @override
   void initState() {
@@ -52,12 +52,11 @@ class _LeftPanelState extends State<LeftPanel> {
 
   Future<void> loadTodoList() async {
     ListData listDataInstance = ListData();
-    List<TodoList> fetchedList = await listDataInstance.getListData();
+    List<TodoListModel> fetchedList = await listDataInstance.getListData();
     setState(() {
       todoList = fetchedList;
       addedNewList = todoList.map((todo) => todo.listName).toList();
-      widget.onListSelected(
-          todoList[0], todoList[0].listName);
+      widget.onListSelected(todoList[0], todoList[0].listName);
     });
   }
 

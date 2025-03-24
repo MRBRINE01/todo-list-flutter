@@ -5,7 +5,7 @@ import 'package:todo_list/models/todo_list_model.dart';
 import '../../core/constants.dart';
 
 class ListData {
-  Future<List<TodoList>> getListData() async {
+  Future<List<TodoListModel>> getListData() async {
     try {
       final response = await http.get(
         Uri.parse("${Constants.baseUrl}/lists"),
@@ -16,10 +16,10 @@ class ListData {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
 
-        final List<dynamic> listsJson = data['lists']?? [];
+        final List<dynamic> listsJson = data['lists'] ?? [];
 
         return listsJson
-            .map((listsJson) => TodoList.fromJson(listsJson))
+            .map((listsJson) => TodoListModel.fromJson(listsJson))
             .toList();
       } else {
         throw Exception('Failed to load lists: ${response.statusCode}');

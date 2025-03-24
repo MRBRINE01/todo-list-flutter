@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:todo_list/core/constants.dart';
+import 'package:todo_list/models/task_model.dart';
+import 'package:todo_list/repositories/tasks_repo/delete_task_repo.dart';
+import 'package:todo_list/repositories/tasks_repo/edit_task_repo.dart';
 
 class RightPanel extends StatefulWidget {
-  final String? taskName;
-  final bool? isCompleted;
+  final TaskModel? taskData;
   final VoidCallback? onToggleTask;
+  final int? listId;
 
   const RightPanel({
     super.key,
-    required this.taskName,
-    required this.isCompleted,
+    required this.listId,
+    required this.taskData,
     required this.onToggleTask,
   });
 
@@ -23,14 +26,16 @@ class _RightPanelState extends State<RightPanel> {
   TextEditingController noteController = TextEditingController();
   TextEditingController dateController = TextEditingController();
   TextEditingController taskNameController = TextEditingController();
-  String? selectedDate;
-  String? apiDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  String? dueData;
 
   @override
   void initState() {
     super.initState();
-    isCompleted = widget.isCompleted!;
-    taskNameController.text = widget.taskName!;
+    setState(() {
+      taskNameController.text = widget.taskData!.task;
+      isCompleted = widget.taskData!.isCompleted;
+      noteController.text = widget.taskData!.note;
+    });
   }
 
   Future<void> selectDate(BuildContext context) async {
@@ -50,10 +55,15 @@ class _RightPanelState extends State<RightPanel> {
 
     if (pickedDate != null) {
       setState(() {
-        selectedDate = DateFormat('dd-MM-yyyy').format(pickedDate);
-        print("Selected Date: $selectedDate");
+        dueData = DateFormat('dd-MM-yyyy').format(pickedDate);
       });
     }
+  }
+
+  void taskEdit() {
+    EditTaskRepo editTask = EditTaskRepo();
+    editTask.editTask(widget.listId, widget.taskData!.taskId,
+        taskNameController.text, isCompleted, dueData, noteController.text);
   }
 
   @override
@@ -79,7 +89,8 @@ class _RightPanelState extends State<RightPanel> {
                         setState(() {
                           isCompleted = !isCompleted;
                         });
-                        widget.onToggleTask!();
+                        // widget.onToggleTask!();
+                        taskEdit();
                       },
                       child: Container(
                         width: 20,
@@ -108,6 +119,9 @@ class _RightPanelState extends State<RightPanel> {
                       child: TextField(
                         cursorColor: Colors.white,
                         controller: taskNameController,
+                        onSubmitted: (value) {
+                          taskEdit();
+                        },
                         style: TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           border: InputBorder.none,
@@ -212,7 +226,7 @@ class _RightPanelState extends State<RightPanel> {
                               Padding(
                                 padding: const EdgeInsets.only(left: 10),
                                 child: Text(
-                                  selectedDate ?? "Add Due Date",
+                                  dueData ?? "Add Due Date",
                                   style: TextStyle(
                                       color: Constants.textColor, fontSize: 18),
                                 ),
@@ -247,6 +261,12 @@ class _RightPanelState extends State<RightPanel> {
               style: TextStyle(fontSize: 16, color: Constants.textColor),
             ),
           ),
+          ElevatedButton(
+            onPressed: () {
+              taskEdit();
+            },
+            child: Text("Save Note"),
+          ),
           Spacer(),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -254,6 +274,21 @@ class _RightPanelState extends State<RightPanel> {
               Text(
                   "Created on ${DateFormat('dd-MM-yyyy').format(DateTime.now())}",
                   style: TextStyle(color: Constants.textColor)),
+              Spacer(),
+              IconButton(
+                onPressed: () {
+                  DeleteTaskRepo deletetask = DeleteTaskRepo();
+                  deletetask.deleteTask(widget.listId, widget.taskData!.taskId);
+
+                  setState(() {
+      // You can remove the deleted task from the list if applicable
+    });
+                },
+                icon: Icon(
+                  Icons.delete,
+                  color: Colors.blue,
+                ),
+              ),
             ],
           ),
           SizedBox(height: 15),
